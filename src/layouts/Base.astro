@@ -1,0 +1,17 @@
+---
+import '../styles/global.css';
+const { title = 'Redline', description = 'Ready-to-use scripts for the awkward moments of design work.' } = Astro.props;
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header class="site"><div class="wrap"><a href="/">Red<span>line</span></a></div></header>
+    <main class="wrap"><slot /></main>
+    <footer class="wrap">Open source. Content CC BY-SA 4.0, code MIT. Add your own entry with a pull request.</footer>
+  </body>
+</html>

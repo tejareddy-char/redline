@@ -1,0 +1,30 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+export async function getStaticPaths() {
+  const entries = await getCollection('entries');
+  return entries.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+}
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+<Base title={`${entry.data.title} · Redline`} description={entry.data.situation}>
+  <p><a href="/">← All situations</a></p>
+  <div class="tag">{entry.data.category} · {entry.data.tone}</div>
+  <h1>{entry.data.title}</h1>
+  <p class="lead">{entry.data.situation}</p>
+  <blockquote class="script" id="script">{entry.data.script.trim()}</blockquote>
+  <button class="copy" id="copy">Copy script</button>
+  <Content />
+  <p class="lead">Contributed by {entry.data.author}</p>
+  <script>
+    const btn = document.getElementById('copy') as HTMLButtonElement;
+    const text = document.getElementById('script')!.textContent ?? '';
+    btn.addEventListener('click', async () => {
+      await navigator.clipboard.writeText(text);
+      btn.textContent = 'Copied';
+      btn.dataset.done = 'true';
+      setTimeout(() => { btn.textContent = 'Copy script'; btn.dataset.done = 'false'; }, 1800);
+    });
+  </script>
+</Base>

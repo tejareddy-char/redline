@@ -1,0 +1,44 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+const entries = (await getCollection('entries')).sort((a, b) => a.data.title.localeCompare(b.data.title));
+const categories = [...new Set(entries.map((e) => e.data.category))];
+---
+<Base>
+  <h1>What do you say when…</h1>
+  <p class="lead">Ready-to-use scripts for the awkward moments of design work, written by designers.</p>
+  <input class="search" id="q" type="search" placeholder="Search situations, e.g. scope, pricing, feedback" aria-label="Search" />
+  <div class="filters" id="filters">
+    <button data-cat="all" aria-pressed="true">All</button>
+    {categories.map((c) => <button data-cat={c} aria-pressed="false">{c}</button>)}
+  </div>
+  <div id="list">
+    {entries.map((e) => (
+      <a class="card" href={`/entries/${e.id}/`} data-cat={e.data.category} data-text={`${e.data.title} ${e.data.situation}`.toLowerCase()}>
+        <div class="tag">{e.data.category}</div>
+        <h2>{e.data.title}</h2>
+        <p>{e.data.situation}</p>
+      </a>
+    ))}
+  </div>
+  <script>
+    const q = document.getElementById('q') as HTMLInputElement;
+    const cards = [...document.querySelectorAll<HTMLElement>('.card')];
+    const btns = [...document.querySelectorAll<HTMLButtonElement>('#filters button')];
+    let cat = 'all';
+    const apply = () => {
+      const term = q.value.trim().toLowerCase();
+      cards.forEach((c) => {
+        const okCat = cat === 'all' || c.dataset.cat === cat;
+        const okText = !term || (c.dataset.text ?? '').includes(term);
+        c.style.display = okCat && okText ? '' : 'none';
+      });
+    };
+    q.addEventListener('input', apply);
+    btns.forEach((b) => b.addEventListener('click', () => {
+      cat = b.dataset.cat ?? 'all';
+      btns.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      apply();
+    }));
+  </script>
+</Base>
